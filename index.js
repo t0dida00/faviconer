@@ -30,7 +30,8 @@ app.post("/favicons", async (req, res) => {
 
                 let favicon = $("link[rel='icon']").attr("href") ||
                     $("link[rel='shortcut icon']").attr("href");
-                const name = url.split("/")[2].split(".")[1] || "localhost";
+                const name = $('title').text() || url.split("/")[2].split(".")[1] || "localhost";
+                // const name = url.split("/")[2].split(".")[1] || "localhost";
                 console.log(url)
                 console.log(name);
                 if (favicon) {
