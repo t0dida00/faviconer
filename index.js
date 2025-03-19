@@ -66,7 +66,7 @@ app.post("/upload", upload.single("file"), async (req, res) => {
 
     try {
         // Read the uploaded file
-        const filePath = path.join(__dirname, req.file.path);
+        const filePath = path.join(process.cwd(), req.file.path);
         const fileContent = fs.readFileSync(filePath, "utf8");
 
         // Extract URLs from file (assuming one URL per line)
