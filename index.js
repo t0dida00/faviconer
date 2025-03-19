@@ -9,15 +9,8 @@ const app = express();
 
 app.use(express.json()); // Enable JSON parsing
 app.use(cors()); // Enable CORS for all routes
-// const upload = multer({ dest: "/tmp/uploads" });
-// Ensure upload directory exists
-const uploadDir = path.join(__dirname, "uploads");
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-}
+const upload = multer({ dest: "/tmp" });
 
-// Use a valid destination path
-const upload = multer({ dest: uploadDir });
 
 app.get("/", (req, res) => {
     res.send("Hello world");
@@ -73,7 +66,7 @@ app.post("/upload", upload.single("file"), async (req, res) => {
     }
     try {
         // Read the uploaded file
-        const filePath = path.resolve(req.file.path);
+        const filePath = req.file.path;
         const fileContent = fs.readFileSync(filePath, "utf8");
 
         // Extract URLs from file (assuming one URL per line)
