@@ -9,7 +9,15 @@ const app = express();
 
 app.use(express.json()); // Enable JSON parsing
 app.use(cors()); // Enable CORS for all routes
-const upload = multer({ dest: "/tmp/uploads" });
+// const upload = multer({ dest: "/tmp/uploads" });
+// Ensure upload directory exists
+const uploadDir = path.join(__dirname, "uploads");
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+// Use a valid destination path
+const upload = multer({ dest: uploadDir });
 
 app.get("/", (req, res) => {
     res.send("Hello world");
@@ -63,10 +71,9 @@ app.post("/upload", upload.single("file"), async (req, res) => {
     if (!req.file) {
         return res.status(400).json({ error: "No file uploaded" });
     }
-
     try {
         // Read the uploaded file
-        const filePath = path.join(process.cwd(), req.file.path);
+        const filePath = path.resolve(req.file.path);
         const fileContent = fs.readFileSync(filePath, "utf8");
 
         // Extract URLs from file (assuming one URL per line)
@@ -108,6 +115,7 @@ app.post("/upload", upload.single("file"), async (req, res) => {
 
         res.json({ favicons });
     } catch (error) {
+        console.log(error)
         res.status(500).json({ error: "Server error" });
     }
 });
