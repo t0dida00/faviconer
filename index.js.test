@@ -1,0 +1,42 @@
+const express = require('express');
+const app = express();
+const PORT = 3000;
+
+app.use(express.json());
+
+function extractAndReplaceVariables(scss) {
+    const colorMap = {};
+    let varCount = 1;
+
+    const cleanedScss = scss.replace(/\/\/.*$/gm, '').replace(/#([0-9a-fA-F]{3,6})/g, (match) => {
+        if (!colorMap[match]) {
+            colorMap[match] = `$color_${varCount++}`;
+        }
+        return colorMap[match];
+    });
+
+    let variableDefinitions = Object.entries(colorMap)
+        .map(([color, variable]) => `${variable}: ${color};`)
+        .join('\n');
+
+    return `${variableDefinitions}\n\n${cleanedScss}`;
+}
+
+app.post('/process-scss', (req, res) => {
+    try {
+        const { scss } = req.body;
+        if (!scss) {
+            return res.status(400).json({ error: 'No SCSS provided' });
+        }
+
+        const processedScss = extractAndReplaceVariables(scss);
+
+        res.json({ processedScss });
+    } catch (error) {
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
