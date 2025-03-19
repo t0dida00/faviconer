@@ -25,6 +25,10 @@ app.post("/favicons", async (req, res) => {
 
     try {
         const faviconPromises = urls.map(async (url) => {
+            if (!/^https?:\/\//i.test(url)) {
+                return { url, error: "Invalid URL format" };
+            }
+
             try {
                 const response = await axios.get(url, { timeout: 5000 });
                 const $ = cheerio.load(response.data);
@@ -33,8 +37,7 @@ app.post("/favicons", async (req, res) => {
                     $("link[rel='shortcut icon']").attr("href");
                 const name = $('title').text() || url.split("/")[2].split(".")[1] || "localhost";
                 // const name = url.split("/")[2].split(".")[1] || "localhost";
-                console.log(url)
-                console.log(name);
+
                 if (favicon) {
 
                     if (!favicon.startsWith("http")) {
@@ -78,6 +81,10 @@ app.post("/upload", upload.single("file"), async (req, res) => {
 
         // Fetch favicons for all URLs
         const faviconPromises = urls.map(async (url) => {
+            if (!/^https?:\/\//i.test(url)) {
+                return { url, error: "Invalid URL format" };
+            }
+
             try {
                 const response = await axios.get(url, { timeout: 5000 });
                 const $ = cheerio.load(response.data);
