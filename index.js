@@ -9,7 +9,7 @@ const app = express();
 
 app.use(express.json()); // Enable JSON parsing
 app.use(cors()); // Enable CORS for all routes
-const upload = multer({ dest: "uploads/" }); // Store uploaded files in 'uploads/' directory
+// const upload = multer({ dest: "uploads/" }); // Store uploaded files in 'uploads/' directory
 
 app.get("/", (req, res) => {
     res.send("Hello world");
