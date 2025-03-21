@@ -120,4 +120,44 @@ app.post("/upload", upload.single("file"), async (req, res) => {
     }
 });
 
+app.post("/download-csv", async (req, res) => {
+    try {
+        // Create CSV header
+        const csvRows = [];
+        csvRows.push(['Order', 'Name', 'URL', 'Favicon URL']);
+
+        // Get data from request body
+        const { favicons } = req.body;
+
+        if (!Array.isArray(favicons) || favicons.length === 0) {
+            return res.status(400).json({ error: "Missing or invalid 'favicons' parameter" });
+        }
+
+        // Add data rows with order number
+        let order = 1;
+        favicons.forEach(item => {
+            if (!item.error) {
+                csvRows.push([order++, item.name,
+                item.url,
+                item.favicon,
+                ]);
+            }
+        });
+
+        // Convert to CSV string
+        const csvContent = csvRows.map(row => row.join(',')).join('\n');
+
+        // Set headers for file download
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', 'attachment; filename=favicons.csv');
+
+        // Send the CSV
+        res.status(200).send(csvContent);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Server error" });
+    }
+});
+
 app.listen(3000, () => console.log("Server running on port 3000"));
